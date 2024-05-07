@@ -35,7 +35,7 @@ const Extension = () => {
         const result = await applyCartLinesChange({
           type: 'updateCartLine',
           id: item.id,
-          attributes: [{ key: 'shippingFee', value: `${formatVND(shippingFee)}` }]
+          attributes: [{ key: 'Shipping fee', value: `${formatVND(shippingFee)}` }]
         });
         console.log({ ...result, shippingFee });
       }
