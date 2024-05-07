@@ -1,5 +1,15 @@
-import { reactExtension, Checkbox, Text, useCartLineTarget, useApplyCartLinesChange, useShippingAddress } from '@shopify/ui-extensions-react/checkout';
-import { useEffect, useState } from 'react';
+import {
+  reactExtension,
+  Text,
+  useCartLineTarget,
+  useApplyCartLinesChange,
+  useShippingAddress,
+  useSubscription,
+  useApi,
+  useDeliveryGroups,
+  useDeliveryGroup
+} from '@shopify/ui-extensions-react/checkout';
+import { useEffect } from 'react';
 import { CartLineItemApi } from '@shopify/ui-extensions/checkout';
 
 export default reactExtension('purchase.checkout.cart-line-item.render-after', () => (
@@ -7,33 +17,38 @@ export default reactExtension('purchase.checkout.cart-line-item.render-after', (
 ));
 
 const Extension = () => {
-  // const [discount, setDiscount] = useState<string | number>('');
   const applyCartLinesChange = useApplyCartLinesChange();
   const {
     id
   } = useCartLineTarget();
-  const address = useShippingAddress();
+  // const deliveryGroups = useDeliveryGroups();
+  // const {
+  //   selectedDeliveryOption,
+  //   targetedCartLines,
+  // } = useDeliveryGroup(deliveryGroups[0]);
 
-  useEffect(() => {
-    const discount = Math.floor(Math.random() * (100 - 10 + 1) + 10);
-    console.log('discount', discount);
-    applyCartLinesChange({
-      type: 'updateCartLine',
-      id,
-      attributes: [{ key: 'discount', value: `${discount}` }]
-    }).then(res => console.log(res));
-  }, [JSON.stringify(address)]);
+  // // const temp = useDeliveryGroup(deliveryGroups[0]);
 
-  // const updateCartLineItemAttribute = async () => {
+
+  // useEffect(() => {
+  //   console.log(11111, selectedDeliveryOption);
+  // }, [selectedDeliveryOption]);
+
+  // useEffect(() => {
+  //   console.log(22222, targetedCartLines[0]);
+  // }, [targetedCartLines]);
+
+  // console.log(111, shipping[0]);
+
+  // useEffect(() => {
   //   const discount = Math.floor(Math.random() * (100 - 10 + 1) + 10);
   //   console.log('discount', discount);
-  //   const result = await applyCartLinesChange({
+  //   applyCartLinesChange({
   //     type: 'updateCartLine',
   //     id,
   //     attributes: [{ key: 'discount', value: `${discount}` }]
-  //   });
-  //   return result;
-  // }
+  //   }).then(res => console.log(res));
+  // }, [JSON.stringify(address)]);
 
   return (
     <Text>Hello world</Text>
