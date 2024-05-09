@@ -7,14 +7,14 @@ import {
 } from "@shopify/ui-extensions-react/checkout";
 import { useEffect, useRef } from "react";
 
-export default reactExtension('purchase.checkout.shipping-option-list.render-before', () => (
+export default reactExtension('purchase.checkout.header.render-after', () => (
   <Extension />
 ));
 
 const Extension = () => {
   const applyCartLinesChange = useApplyCartLinesChange();
   const shippingAddress = useShippingAddress();
-  const shouldApplyshippingFee = useRef(true);
+  const shouldApplyshippingFee = useRef(false);
   const cartLines = useCartLines();
 
   useEffect(() => {
@@ -22,23 +22,24 @@ const Extension = () => {
   }, [JSON.stringify(shippingAddress)]);
 
   useEffect(() => {
-    updateShippingFee();
-    shouldApplyshippingFee.current = false;
+    if (shouldApplyshippingFee.current) {
+      console.log('------ updateShippingFee Triggered ------');
+      updateShippingFee();
+      shouldApplyshippingFee.current = false;
+    }
   }, [cartLines]);
 
   const updateShippingFee = async () => {
-    if (shouldApplyshippingFee.current) {
-      let shippingFee: number | string;
-      for (const item of cartLines) {
-        shippingFee = Math.floor(Math.random() * (5000 - 1000 + 1) + 1000);
+    let shippingFee: number | string;
+    for (const item of cartLines) {
+      shippingFee = Math.floor(Math.random() * (5000 - 1000 + 1) + 1000);
 
-        const result = await applyCartLinesChange({
-          type: 'updateCartLine',
-          id: item.id,
-          attributes: [{ key: 'Shipping fee', value: `${formatVND(shippingFee)}` }]
-        });
-        console.log({ ...result, shippingFee });
-      }
+      const result = await applyCartLinesChange({
+        type: 'updateCartLine',
+        id: item.id,
+        attributes: [{ key: 'Shipping fee', value: `${formatVND(shippingFee)}` }]
+      });
+      console.log({ ...result, shippingFee });
     }
   };
 
