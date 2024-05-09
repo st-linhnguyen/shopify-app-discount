@@ -23,7 +23,7 @@ const Extension = () => {
 
   useEffect(() => {
     if (shouldApplyshippingFee.current) {
-      console.log('------ updateShippingFee Triggered ------');
+      console.log('------ Update Shipping Fee ------');
       updateShippingFee();
       shouldApplyshippingFee.current = false;
     }
