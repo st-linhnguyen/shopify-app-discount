@@ -3,55 +3,85 @@ import {
   Text,
   useApplyCartLinesChange,
   useShippingAddress,
-  useCartLines
+  useCartLines,
 } from "@shopify/ui-extensions-react/checkout";
 import { useEffect, useRef } from "react";
 
-export default reactExtension('purchase.checkout.header.render-after', () => (
+export default reactExtension("purchase.checkout.block.render", () => (
   <Extension />
 ));
 
 const Extension = () => {
   const applyCartLinesChange = useApplyCartLinesChange();
   const shippingAddress = useShippingAddress();
-  const shouldApplyshippingFee = useRef(false);
   const cartLines = useCartLines();
+  const isUpdatingCartLine = useRef(false);
+  const isUpdatedAddress = useRef(false);
 
   useEffect(() => {
-    shouldApplyshippingFee.current = true;
+    console.log("isUpdatingCartLine", isUpdatingCartLine.current);
+    if (shippingAddress.countryCode && !isUpdatedAddress.current) {
+      console.log("------ Address was changed ------");
+      isUpdatedAddress.current = true;
+      if (!isUpdatingCartLine.current) {
+        console.log("------ Update Shipping Fee ------");
+        updateShippingFee();
+      }
+    }
   }, [JSON.stringify(shippingAddress)]);
 
   useEffect(() => {
-    if (shouldApplyshippingFee.current) {
-      console.log('------ Update Shipping Fee ------');
+    if (!isUpdatingCartLine.current && isUpdatedAddress.current) {
       updateShippingFee();
-      shouldApplyshippingFee.current = false;
     }
-  }, [cartLines]);
+  }, [isUpdatingCartLine.current]);
 
   const updateShippingFee = async () => {
+    isUpdatingCartLine.current = true;
+    isUpdatedAddress.current = false;
     let shippingFee: number | string;
+    let retriedTime = 0;
     for (const item of cartLines) {
       shippingFee = Math.floor(Math.random() * (5000 - 1000 + 1) + 1000);
+      let result = await updateCartLine(item.id);
 
-      const result = await applyCartLinesChange({
-        type: 'updateCartLine',
-        id: item.id,
-        attributes: [{ key: 'Shipping fee', value: `${formatVND(shippingFee)}` }]
-      });
-      console.log({ ...result, shippingFee });
+      while (result.type === "error" && retriedTime < 3) {
+        retriedTime += 1;
+        console.log(
+          `------ Retrying ${item.merchandise.title} ${retriedTime} time ------`
+        );
+        result = await updateCartLine(item.id);
+      }
+
+      console.log({ ...result, shippingFee, name: item.merchandise.title });
     }
+    console.log("Update shouldApplyshippingFee");
+    isUpdatingCartLine.current = false;
+  };
+
+  const updateCartLine = async (id: string) => {
+    const shippingFee = Math.floor(Math.random() * (5000 - 1000 + 1) + 1000);
+    const result = await applyCartLinesChange({
+      type: "updateCartLine",
+      id: id,
+      attributes: [{ key: "Shipping fee", value: `${formatVND(shippingFee)}` }],
+    });
+    return result;
   };
 
   const formatVND = (num: number) => {
-    return '₫' + num.toLocaleString('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-      currencyDisplay: 'symbol'
-    }).replace(/[^\d.-]/g, '').replace('.', ',');
+    return (
+      "₫" +
+      num
+        .toLocaleString("vi-VN", {
+          style: "currency",
+          currency: "VND",
+          currencyDisplay: "symbol",
+        })
+        .replace(/[^\d.-]/g, "")
+        .replace(".", ",")
+    );
   };
 
-  return (
-    <Text visibility="hidden">Shipping Method</Text>
-  );
+  return <Text visibility='hidden'>Shipping Method</Text>;
 };

@@ -16,7 +16,7 @@ handle = "cart-item-customization"
 
 [[extensions.targeting]]
 module = "./src/Shipping.tsx"
-target = "purchase.checkout.header.render-after"
+target = "purchase.checkout.block.render"
 
 [extensions.capabilities]
 # Gives your extension access to directly query Shopify’s storefront API.
